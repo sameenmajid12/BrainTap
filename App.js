@@ -7,7 +7,7 @@ const Stack = createNativeStackNavigator();
 export default function App({navigation}) {
   const [gameStatus, setGameStatus] = useState('initial');
   const [level, setLevel] = useState(0);
-  
+  const [lives, setLives] = useState(3);
   const RestartGame=()=>{
 
   }
@@ -25,7 +25,7 @@ export default function App({navigation}) {
         <Stack.Screen
           options={{ headerShown: false}}
           name="game"
-          children={(props)=><GameScreen {...props} gameStatus={gameStatus} setGameStatus={setGameStatus}/>}
+          children={(props)=><GameScreen {...props} gameStatus={gameStatus} setGameStatus={setGameStatus} level={level} setLevel={setLevel} lives={lives} setLives={setLives}/>}
         />
       </Stack.Navigator>
     </NavigationContainer>
