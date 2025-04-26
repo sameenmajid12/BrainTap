@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../colors";
 import Cards from "../components/Cards";
-
+import FontAwesome from "react-native-vector-icons/FontAwesome";
 const LoadingScreen = ({ setGameStatus }) => {
   const [time, setTime] = useState(3);
   useEffect(() => {
@@ -26,16 +26,41 @@ const LoadingScreen = ({ setGameStatus }) => {
     </SafeAreaView>
   );
 };
-const GameScreen = ({ gameStatus, setGameStatus, level, setLevel }) => {
+const Timer = () => {
+  const [secondsElapsed, setSecondsElapsed] = useState(0);
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setSecondsElapsed((prev) => prev + 1);
+    }, 1000);
+    return () => {
+      clearInterval(intervalId);
+    };
+  }, []);
+  const formatTime = () => {
+    const hours = Math.floor(secondsElapsed / 3600);
+    const minutes = Math.floor((secondsElapsed % 3600) / 60);
+    const seconds = secondsElapsed % 60;
+    const pad = (n) => n.toString().padStart(2, "0");
+    return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+  };
+  return <Text style={styles.gameScreenHeaderText}>{formatTime()}</Text>;
+};
+const GameScreen = ({ gameStatus, setGameStatus, level, setLevel, lives }) => {
   if (gameStatus === "starting") {
     return <LoadingScreen setGameStatus={setGameStatus} />;
   }
-  return(
-    <SafeAreaView>
-      <View></View>
-      <Cards/>
+  return (
+    <SafeAreaView style={styles.gameScreen}>
+      <View style={styles.gameScreenHeader}>
+        <Text style={styles.gameScreenHeaderText}>Level {level}</Text>
+        <Timer />
+        <View>
+          <Text style={styles.gameScreenHeaderText}>Lives</Text>
+        </View>
+      </View>
+      <Cards level={level} />
     </SafeAreaView>
-  )
+  );
 };
 const styles = StyleSheet.create({
   loadingScreen: {
@@ -55,5 +80,20 @@ const styles = StyleSheet.create({
     color: colors.accent,
     fontWeight: 600,
   },
+  gameScreen: {
+    flex: 1,
+    backgroundColor: colors.primary,
+    rowGap:90,
+    paddingTop:30  },
+  gameScreenHeader:{
+    padding:30,
+    flexDirection:'row',
+    justifyContent:'space-between'
+  },
+  gameScreenHeaderText:{
+    fontSize:24,
+    fontWeight:'500',
+    color:colors.text
+  }
 });
 export default GameScreen;
