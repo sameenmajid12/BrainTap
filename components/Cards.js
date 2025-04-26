@@ -9,7 +9,7 @@ import colors from "../colors";
   };
 
   const Cards = ({ level }) => {
-    const numCards = 36;
+    const numCards = getNumCards(level);
     const { width } = useWindowDimensions();
     const cardsPerRow = Math.sqrt(numCards);
     const gapSize = 10;
