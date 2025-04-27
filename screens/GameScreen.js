@@ -44,7 +44,18 @@ const Timer = () => {
   };
   return <Text style={styles.gameScreenHeaderText}>{formatTime()}</Text>;
 };
-const GameScreen = ({ gameStatus, setGameStatus, level, setLevel, lives }) => {
+const GameScreen = ({
+  gameStatus,
+  setGameStatus,
+  level,
+  setLevel,
+  lives,
+  setLives,
+}) => {
+  const [guessesLeft, setGuessesLeft] = useState(3);
+  const [wrongGuess, setWrongGuess] = useState(false);
+  const [currentNumber, setCurrentNumber] = useState(0);
+
   useEffect(() => {
     let timeoutId;
     if (gameStatus === "started") {
@@ -59,6 +70,25 @@ const GameScreen = ({ gameStatus, setGameStatus, level, setLevel, lives }) => {
     }
     return () => clearTimeout(timeoutId);
   }, [gameStatus]);
+  useEffect(() => {
+    if(guessesLeft===3){
+      setWrongGuess(false);
+    }
+    if (guessesLeft === -1) {
+      setLives((prev) => prev - 1);
+      setGuessesLeft(3);
+    }
+  }, [guessesLeft]);
+  useEffect(() => {
+    if (lives === 0) {
+      setGameStatus("gameover");
+    }
+  }, [lives]);
+  useEffect(()=>{
+    if(currentNumber===level+1){
+      setLevel(prev=>prev+1);
+    }
+  },[currentNumber, level])
   if (gameStatus === "starting") {
     return <LoadingScreen setGameStatus={setGameStatus} />;
   }
@@ -66,12 +96,32 @@ const GameScreen = ({ gameStatus, setGameStatus, level, setLevel, lives }) => {
     <SafeAreaView style={styles.gameScreen}>
       <View style={styles.gameScreenHeader}>
         <Text style={styles.gameScreenHeaderText}>Level {level}</Text>
-        <Timer />
-        <View>
-          <Text style={styles.gameScreenHeaderText}>Lives</Text>
+
+        <View style={styles.gameHeaderLives}>
+          {Array.from({ length: 3 }).map((_, index) => (
+            <FontAwesome
+              key={index}
+              name={index < lives ? "heart" : "heart-o"}
+              color={"white"}
+              size={30}
+            ></FontAwesome>
+          ))}
         </View>
+        <Timer />
       </View>
-      <Cards level={level} gameStatus={gameStatus} />
+      <Cards
+        level={level}
+        gameStatus={gameStatus}
+        setGuessesLeft={setGuessesLeft}
+        setWrongGuess={setWrongGuess}
+        currentNumber={currentNumber}
+        setCurrentNumber={setCurrentNumber}
+      />
+      {wrongGuess && (
+        <Text
+          style={styles.wrongGuessText}
+        >{`${guessesLeft} guesses left until you lose a life!`}</Text>
+      )}
     </SafeAreaView>
   );
 };
@@ -96,18 +146,31 @@ const styles = StyleSheet.create({
   gameScreen: {
     flex: 1,
     backgroundColor: colors.primary,
-    rowGap: 90,
     paddingTop: 30,
+    paddingTop:120
   },
   gameScreenHeader: {
     padding: 30,
     flexDirection: "row",
     justifyContent: "space-between",
+    alignItems: "center",
   },
   gameScreenHeaderText: {
     fontSize: 24,
     fontWeight: "500",
     color: colors.text,
+    width: 110,
+  },
+  wrongGuessText: {
+    paddingTop:20,
+    color: "#FF0032",
+    fontWeight: 600,
+    fontSize: 14,
+    textAlign: "center",
+  },
+  gameHeaderLives: {
+    flexDirection: "row",
+    columnGap: 5,
   },
 });
 export default GameScreen;
