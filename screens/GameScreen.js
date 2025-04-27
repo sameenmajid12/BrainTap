@@ -12,13 +12,12 @@ const LoadingScreen = ({ setGameStatus }) => {
       return;
     }
     const intervalId = setInterval(() => {
-      console.log(time);
       setTime((prev) => prev - 1);
-    }, [1000]);
+    }, 1000);
     return () => {
       clearInterval(intervalId);
     };
-  }, [time]);
+  }, [time, setGameStatus]);
   return (
     <SafeAreaView style={styles.loadingScreen}>
       <Text style={styles.loadingHeader}>Your game is starting in..</Text>
@@ -46,6 +45,20 @@ const Timer = () => {
   return <Text style={styles.gameScreenHeaderText}>{formatTime()}</Text>;
 };
 const GameScreen = ({ gameStatus, setGameStatus, level, setLevel, lives }) => {
+  useEffect(() => {
+    let timeoutId;
+    if (gameStatus === "started") {
+      timeoutId = setTimeout(() => {
+        setGameStatus("showcards");
+      }, 1000);
+    }
+    if (gameStatus === "showcards") {
+      timeoutId = setTimeout(() => {
+        setGameStatus("hidecards");
+      }, 3500);
+    }
+    return () => clearTimeout(timeoutId);
+  }, [gameStatus]);
   if (gameStatus === "starting") {
     return <LoadingScreen setGameStatus={setGameStatus} />;
   }
@@ -58,7 +71,7 @@ const GameScreen = ({ gameStatus, setGameStatus, level, setLevel, lives }) => {
           <Text style={styles.gameScreenHeaderText}>Lives</Text>
         </View>
       </View>
-      <Cards level={level} />
+      <Cards level={level} gameStatus={gameStatus} />
     </SafeAreaView>
   );
 };
@@ -83,17 +96,18 @@ const styles = StyleSheet.create({
   gameScreen: {
     flex: 1,
     backgroundColor: colors.primary,
-    rowGap:90,
-    paddingTop:30  },
-  gameScreenHeader:{
-    padding:30,
-    flexDirection:'row',
-    justifyContent:'space-between'
+    rowGap: 90,
+    paddingTop: 30,
   },
-  gameScreenHeaderText:{
-    fontSize:24,
-    fontWeight:'500',
-    color:colors.text
-  }
+  gameScreenHeader: {
+    padding: 30,
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  gameScreenHeaderText: {
+    fontSize: 24,
+    fontWeight: "500",
+    color: colors.text,
+  },
 });
 export default GameScreen;

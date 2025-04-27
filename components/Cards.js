@@ -24,7 +24,7 @@ const Cards = ({ level, gameStatus }) => {
   const [numberedCardIndices, setNumberedCardIndices] = useState([]);
   const [currentNumber, setCurrentNumber] = useState(0);
   const flipAnimations = useRef(
-    Array.from({ length: numCards }, () => new Animated.Value(0))
+    Array.from({ length: numCards }, () => new Animated.Value(180))
   ).current;
 
   useEffect(() => {
@@ -51,8 +51,8 @@ const Cards = ({ level, gameStatus }) => {
   const flipAllCards = (show) => {
     flipAnimations.forEach((anim, index) => {
       Animated.timing(anim, {
-        toValue: show ? 180 : 0,
-        duration: 300,
+        toValue: show ? 0: 180,
+        duration: 100+(index+1)*50,
         useNativeDriver: true,
         easing: Easing.linear,
       }).start();
@@ -60,10 +60,12 @@ const Cards = ({ level, gameStatus }) => {
   };
 
   const flipCard = (index) => {
+    if(gameStatus!=='hidecards'){
+      return;
+    }
     const isCurrentlyFlipped = flippedCards.includes(index);
-
     Animated.timing(flipAnimations[index], {
-      toValue: isCurrentlyFlipped ? 0 : 180,
+      toValue: isCurrentlyFlipped ? 180 : 0,
       duration: 300,
       useNativeDriver: true,
       easing: Easing.linear,
@@ -92,13 +94,12 @@ const Cards = ({ level, gameStatus }) => {
           ? numberedCardIndices.indexOf(index) + 1
           : null;
 
-        const rotateY = flipAnimations[index].interpolate({
-          inputRange: [0, 180],
-          outputRange: ["0deg", "180deg"],
-        });
 
         const frontAnimatedStyle = {
-          transform: [{ rotateY }],
+          transform: [{ rotateY: flipAnimations[index].interpolate({
+            inputRange:[0, 180],
+            outputRange:['0deg', '180deg']
+          }) }],
         };
 
         const backAnimatedStyle = {
