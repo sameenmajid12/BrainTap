@@ -4,9 +4,9 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import StartScreen from "./screens/StartScreen";
 import GameScreen from "./screens/GameScreen";
 const Stack = createNativeStackNavigator();
-export default function App({ navigation }) {
+export default function App() {
   const [gameStatus, setGameStatus] = useState("initial");
-  const [level, setLevel] = useState(16);
+  const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(3);
   useEffect(() => {
     if (gameStatus !== "initial") {
