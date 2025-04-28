@@ -4,27 +4,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "../colors";
 import Cards from "../components/Cards";
 import FontAwesome from "react-native-vector-icons/FontAwesome";
-const LoadingScreen = ({ setGameStatus }) => {
-  const [time, setTime] = useState(3);
-  useEffect(() => {
-    if (time === 0) {
-      setGameStatus("started");
-      return;
-    }
-    const intervalId = setInterval(() => {
-      setTime((prev) => prev - 1);
-    }, 1000);
-    return () => {
-      clearInterval(intervalId);
-    };
-  }, [time, setGameStatus]);
-  return (
-    <SafeAreaView style={styles.loadingScreen}>
-      <Text style={styles.loadingHeader}>Your game is starting in..</Text>
-      <Text style={styles.loadingTime}>{time}</Text>
-    </SafeAreaView>
-  );
-};
+import GameOver from "../components/GameOver";
+import LoadingScreen from "../components/Loading";
 const Timer = () => {
   const [secondsElapsed, setSecondsElapsed] = useState(0);
   useEffect(() => {
@@ -42,7 +23,7 @@ const Timer = () => {
     const pad = (n) => n.toString().padStart(2, "0");
     return `${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
   };
-  return <Text style={styles.gameScreenHeaderText}>{formatTime()}</Text>;
+  return <Text style={styles.gameScreenTimer}>{formatTime()}</Text>;
 };
 const GameScreen = ({
   gameStatus,
@@ -51,10 +32,13 @@ const GameScreen = ({
   setLevel,
   lives,
   setLives,
+  restartGame,
+  guessesLeft,
+  setGuessesLeft,
+  setWrongGuess,
+  wrongGuess
 }) => {
-  const [guessesLeft, setGuessesLeft] = useState(3);
-  const [wrongGuess, setWrongGuess] = useState(false);
-  const [currentNumber, setCurrentNumber] = useState(0);
+  
 
   useEffect(() => {
     let timeoutId;
@@ -71,10 +55,10 @@ const GameScreen = ({
     return () => clearTimeout(timeoutId);
   }, [gameStatus]);
   useEffect(() => {
-    if(guessesLeft===3){
+    if (guessesLeft === 3) {
       setWrongGuess(false);
     }
-    if (guessesLeft === -1) {
+    if (guessesLeft === 0) {
       setLives((prev) => prev - 1);
       setGuessesLeft(3);
     }
@@ -84,13 +68,12 @@ const GameScreen = ({
       setGameStatus("gameover");
     }
   }, [lives]);
-  useEffect(()=>{
-    if(currentNumber===level+1){
-      setLevel(prev=>prev+1);
-    }
-  },[currentNumber, level])
+  
   if (gameStatus === "starting") {
     return <LoadingScreen setGameStatus={setGameStatus} />;
+  }
+  if(gameStatus==='gameover'){
+    return <GameOver level={level} restartGame={restartGame}/>
   }
   return (
     <SafeAreaView style={styles.gameScreen}>
@@ -111,11 +94,11 @@ const GameScreen = ({
       </View>
       <Cards
         level={level}
+        setLevel={setLevel}
         gameStatus={gameStatus}
         setGuessesLeft={setGuessesLeft}
         setWrongGuess={setWrongGuess}
-        currentNumber={currentNumber}
-        setCurrentNumber={setCurrentNumber}
+        setGameStatus={setGameStatus}
       />
       {wrongGuess && (
         <Text
@@ -126,28 +109,12 @@ const GameScreen = ({
   );
 };
 const styles = StyleSheet.create({
-  loadingScreen: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    justifyContent: "center",
-    alignItems: "center",
-    rowGap: 10,
-  },
-  loadingHeader: {
-    fontSize: 24,
-    color: colors.text,
-    fontWeight: 500,
-  },
-  loadingTime: {
-    fontSize: 48,
-    color: colors.accent,
-    fontWeight: 600,
-  },
+  
   gameScreen: {
     flex: 1,
     backgroundColor: colors.primary,
     paddingTop: 30,
-    paddingTop:120
+    paddingTop: 120,
   },
   gameScreenHeader: {
     padding: 30,
@@ -161,8 +128,15 @@ const styles = StyleSheet.create({
     color: colors.text,
     width: 110,
   },
+  gameScreenTimer:{
+    fontSize: 24,
+    fontWeight: "500",
+    color: colors.text,
+    width: 110,
+    textAlign:'right'
+  },
   wrongGuessText: {
-    paddingTop:20,
+    paddingTop: 20,
     color: "#FF0032",
     fontWeight: 600,
     fontSize: 14,

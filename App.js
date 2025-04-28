@@ -8,20 +8,33 @@ export default function App() {
   const [gameStatus, setGameStatus] = useState("initial");
   const [level, setLevel] = useState(1);
   const [lives, setLives] = useState(3);
+  const [guessesLeft, setGuessesLeft] = useState(3);
+  const [wrongGuess, setWrongGuess] = useState(false);
+  useEffect(()=>{
+    console.log(gameStatus);
+  },[gameStatus])
   useEffect(() => {
     if (gameStatus !== "initial") {
-      setGameStatus("showcards");
-      const timeoutId = setTimeout(() => {
-        setGameStatus("hidecards");
-      }, 3500);
-      return () => {
-        clearTimeout(timeoutId);
-      };
+      console.log('f')
+      setGuessesLeft(3);
+      timeoutId = setTimeout(() => {
+        setGameStatus("showcards");
+      }, 1000);
+ 
+      if (gameStatus === "showcards") {
+        timeoutId = setTimeout(() => {
+          setGameStatus("hidecards");
+        }, 3500);
+      }
+      return () => clearTimeout(timeoutId);
     }
   }, [level]);
-  const RestartGame = () => {
-    setLevel(0);
+  const restartGame = () => {
+    setLives(3);
+    setLevel(1);
     setGameStatus("starting");
+    setGuessesLeft(3);
+    setWrongGuess(false);
   };
   const SaveScore = () => {};
   return (
@@ -46,6 +59,11 @@ export default function App() {
               setLevel={setLevel}
               lives={lives}
               setLives={setLives}
+              restartGame={restartGame}
+              wrongGuess={wrongGuess}
+              setWrongGuess={setWrongGuess}
+              setGuessesLeft={setGuessesLeft}
+              guessesLeft={guessesLeft}
             />
           )}
         />

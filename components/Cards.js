@@ -23,18 +23,50 @@ const Cards = ({
   gameStatus,
   setGuessesLeft,
   setWrongGuess,
-  wrongGuess,
-  setCurrentNumber,
-  currentNumber
+  setLevel, 
+  setGameStatus
 }) => {
   const numCards = getNumCards(level);
   const [flippedCards, setFlippedCards] = useState([]);
   const [numberedCardIndices, setNumberedCardIndices] = useState([]);
+  const [currentNumber, setCurrentNumber] = useState(0);
   const [animations, setAnimations] = useState({
     flipAnimations: [],
     cardColors: []
   });
-
+  useEffect(() => {
+      if (currentNumber === level + 1) {
+        const timeoutId1 = setTimeout(()=>{
+          flipAllCards(false);
+          animations.cardColors.forEach((anim)=>{
+            Animated.sequence([
+              Animated.timing(anim,{
+                toValue:-1,
+                duration:200,
+                useNativeDriver:true
+              }),
+              Animated.timing(anim,{
+                toValue:0,
+                duration:200,
+                useNativeDriver:true
+              })
+            ]).start()
+            
+          })
+        },500)
+        const timeoutId2 = setTimeout(()=>{
+          setGameStatus('started');
+        },1000);
+        const timeoutId3 = setTimeout(()=>{
+          setLevel((prev) => prev + 1);
+        },2000);
+        return()=>{
+          clearTimeout(timeoutId1);
+          clearTimeout(timeoutId2);
+          clearTimeout(timeoutId3);
+        }
+      }
+    }, [currentNumber, level]);
   useEffect(() => {
     setAnimations({
       flipAnimations: Array.from({ length: numCards }, () => new Animated.Value(180)),
@@ -101,7 +133,6 @@ const Cards = ({
       return;
     } else {
       setCurrentNumber((prev) => prev + 1);
-      setGuessesLeft(3);
     }
     Animated.timing(animations.flipAnimations[index], {
       toValue: isCurrentlyFlipped ? 180 : 0,
@@ -161,8 +192,8 @@ const Cards = ({
           };
           const backColor = {
             backgroundColor: animations.cardColors[index].interpolate({
-              inputRange: [0, 1],
-              outputRange: ["white", "#FF0032"],
+              inputRange: [-1,0, 1],
+              outputRange: ['#6BFF86',"white", "#FF0032"],
             }),
           };
           return (
