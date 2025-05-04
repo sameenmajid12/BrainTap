@@ -11,7 +11,7 @@
     return(
       <SafeAreaView style={styles.startContainer}>
         <MaterialIcons size={120} color={'white'} name="dashboard"/>
-        <Text style={styles.startHeader}>Number Memory Game</Text>
+        <Text style={styles.startHeader}>Brain Tap</Text>
         <Text style={styles.startSubHeader}>Memorize the numbers in the squares before they flip</Text>
         <StartButton StartGame={StartGame}/>
         <TouchableOpacity ><Text style={styles.savedScores}>Saved Scores</Text></TouchableOpacity>
